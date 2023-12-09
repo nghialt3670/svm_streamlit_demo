@@ -56,18 +56,16 @@ def load_data() -> DataFrame | None:
 def preprocess_data(df: DataFrame) -> DataFrame:
     st.markdown("### 2. Data Preprocessing")
     columns = df.columns
-    preprocessing_options = ["Null Rows Dropping", "Null Columns Dropping", "Standardization", "Normalization"]
+    preprocessing_options = ["Null Rows Dropping", "Standard Scaling", "Min-max Scaling"]
     preprocessing_methods = st.multiselect(label="Select preprocessing methods:", options=preprocessing_options)
     columns_to_apply = st.multiselect(label="Apply to columns:", options=columns)
     if st.button(label="Apply"):
         if preprocessing_options[0] in preprocessing_methods:
             df = df.dropna(axis=0, subset=columns_to_apply)
         if preprocessing_options[1] in preprocessing_methods:
-            df = df.dropna(axis=1, subset=columns_to_apply)
-        if preprocessing_options[2] in preprocessing_methods:
             scaler = StandardScaler()
             df = df.apply(lambda col: scaler.fit_transform([[x] for x in col]).flatten() if col.name in columns_to_apply else col)
-        if preprocessing_options[3] in preprocessing_methods:
+        if preprocessing_options[2] in preprocessing_methods:
             scaler = MinMaxScaler()
             df = df.apply(lambda col: scaler.fit_transform([[x] for x in col]).flatten() if col.name in columns_to_apply else col)
 
@@ -259,16 +257,15 @@ def plot_confusion_matrix(cm, classes, title='Confusion matrix', cmap='Blues'):
 
         
 
-
 def main() -> None:
     st.set_page_config(
         page_title="SVM Demo",
     )
 
-    title_html = """<h1 style='text-align: center;'>Support Vector Machine Demo</h1>"""
+    title_html = """<h1 style='text-align: center;'>Support Vector Machine Demo</h1><br><br>"""
     st.markdown(title_html, unsafe_allow_html=True)
+    
     df = load_data()
-
     if df is not None:
         st.dataframe(df, use_container_width=True)
         df = preprocess_data(df)
